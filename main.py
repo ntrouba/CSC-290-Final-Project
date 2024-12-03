@@ -37,15 +37,19 @@ class Fsa:
     def __init__(self, start_state, states): 
        self.start_state = start_state 
        self.states = [] 
-       self.consonants = ["z", "t", "n", "h", "d", "sh", "th", "ch", "b", "w", "x"]
-       self.vowels = ["a", "e", "i", "o", "u", "y", ""]
+    #    self.consonants = ["z", "t", "n", "h", "d", "sh", "th", "ch", "b", "w", "x"]
+    #    self.vowels = ["a", "e", "i", "o", "u", "y", ""]
        #nouns
        #verbs
        #adjectives
        #articles 
        #prepositions
        #auxiliary verbs 
-
+       self.nouns = ["reindeer", "misteltoe", "stockings", "chimney", "elf"]
+       self.verbs = ["caroling", "sipping", "gifting", "opening", "kissing"]
+       self.adjectives = ["warm", "cold", "happy", "festive", "christmassy"]
+       self.articles = ["a", "the"]
+       self.prepositions = ["above", "with", "on", "between", "at"]
 
     def get_start(self):
         return self.start_state 
