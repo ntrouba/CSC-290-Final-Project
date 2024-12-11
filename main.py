@@ -18,6 +18,8 @@ class State:
             next_state:State = random.choice(self.transitions[transition])
             return transition, next_state
 
+    def __str__()
+        print accept
     # def choose 
         # returns transition str, and next state 
 
