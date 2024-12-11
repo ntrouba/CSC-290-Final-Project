@@ -1,107 +1,143 @@
 import random  
+from typing import Self 
+
 
 class State:
-  def __init__(self, accept):
-    self.vowel_path = ""
-    self.consonant = ""
-    self.accept = accept
-  def set_noun(self, state)-> str:
-    self.noun_path= state
-    return self.noun_path
-  def set_verb(self, state) -> str: 
-    self.verb = state
-    return self.verb
-  def set_adjective(self, state) -> str:
-    self.adjective = state 
-    return self.adjective 
-  def set_article(self, state) -> str: 
-    self.article = state
-    return self.article
-  def set_preposition(self, state) -> str: 
-    self.preposition = state
-    return self.preposition
-  def get_noun(self): 
-    return self.noun_path
-  def get_verb(self):
-    return self.verb
-  def get_adjective(self): 
-    return self.adjective
-  def get_article(self): 
-    return self.article
-  def get_preposition(self): 
-    return self.preposition
-  def is_accept(self): 
-    return self.accept 
+    def __init__(self, accept:bool):
+        self.accept:bool = accept
+        self.transitions:dict[str, list[State]] | None = None 
+
+    def choose(self) -> tuple[str, Self|None]:
+        if self.accept: 
+            stop = random.randint(0,1)
+            if stop: 
+                return "stop", None 
+        else:
+            transition:str = random.choice(list(self.transitions.keys()))
+            print(transition)
+            next_state:State = random.choice(self.transitions[transition])
+            return transition, next_state
+
+    # def choose 
+        # returns transition str, and next state 
+
+    
+
     
 class Fsa:
-    def __init__(self, start_state, states): 
+    def __init__(self, start_state:State, states:list[State]): 
        self.start_state = start_state 
        self.states = [] 
-    #    self.consonants = ["z", "t", "n", "h", "d", "sh", "th", "ch", "b", "w", "x"]
-    #    self.vowels = ["a", "e", "i", "o", "u", "y", ""]
+
+       # transitions dictionary 
+
+
        #nouns
        #verbs
        #adjectives
        #articles 
        #prepositions
        #auxiliary verbs 
+
+
+
+
        self.nouns = ["reindeer", "misteltoe", "stockings", "chimney", "elf"]
        self.verbs = ["caroling", "sipping", "gifting", "opening", "kissing"]
        self.adjectives = ["warm", "cold", "happy", "festive", "christmassy"]
        self.articles = ["a", "the"]
        self.prepositions = ["above", "with", "on", "between", "at"]
+       self.determiners = ["can", "might", "will"]
 
-    def get_start(self):
-        return self.start_state 
+
     
 
-def gen(fsa):
     
-    word = []
+
+def gen(fsa:Fsa)-> str:
+    
+    sentence:str= ""
     stop = False
     
-    current_state = fsa.get_start()
+    current_state:State|None = fsa.start_state 
 
     while not stop:
-        print("at next state")
+        print("current state:", current_state)
+
+        if current_state == None: 
+            stop = True 
+        
+        else:
+
+            ret = current_state.choose()
+            transition:str = ret[0]
+            if transition == "stop":
+                stop = True
+
+            next_state:State|None = ret[1]
+
+            print("transition: ", transition, "next state:" , next_state)
+
+            sentence += transition 
+            sentence += ' '
+            current_state = next_state 
 
 
-        choices = []
+
+
+
+
+
+    #temp for testing 
+        
+
+        # ret = state.choose  
+        # transition = ret[0]
+        # next_state = ret[1]
+
+
+            #if transition = accept, stop  = True 
+
+            # if transition terminal, 
+            # words = fsa.transition 
+                 # add random word to sentence 
+
+            # if choice not terminal 
+                # gen(transition) 
+
+            #current_state = next_state 
+
+
+
+
+
+
+
+
+        
+
+
+
+
+        
+
+
+
 
         #print(str(current_state.get_consonant()))
         #print(str(current_state.get_vowel()))
 
         #look at state and add possible options to choices array 
-        if current_state.is_accept():
-            choices.append("stop")
-            print("choices accept:" , choices)
-        if current_state.get_vowel() != "":
-            choices.append("add vowel")
-            #print("choices vowel:" , choices)
-        if current_state.get_consonant()!= "":
-            choices.append("add consonant")
-            #print("choices consonant:" , choices)
-        #print("choices:" , choices)
+
+        # make choice 
+
         
-        #choose an option randomly
-        choice = random.choice(choices)
-        #print("choosing:", choice )
 
-        # if adding a value
-        if choice == "add vowel":
-             i = random.choice(fsa.vowels)
-             word.append(i)
-             current_state = current_state.get_vowel()
-        #if adding a consonant
-        elif choice == "add consonant":
-            i = random.choice(fsa.consonants)
-            word.append(i)
-            current_state = current_state.get_consonant()
-        #if stopping 
-        else:  # choice == 2, stop
-            stop = True
 
-    return ''.join(word)
+        # if nonterminal 
+    
+
+    return sentence
 
 
 def main():
@@ -109,11 +145,25 @@ def main():
     # create automata called fsa 
 
     #initalize states
+    s1:State
+    s2:State
+    s3:State
+    s4:State
+
     s1 = State(False)
     s2 = State(False)
     s3 = State(False)
     s4 = State(True)
-    
+
+    s1.transitions = {"det": [s2]}
+    s2.transitions = {"adj": [s2, s3], "e" : [s3]}
+    s3.transitions = {"noun" : [s4]} 
+    s4.transitions = {}
+
+
+
+
+
     # set paths 
     # s1.set_consonant(s2)
     # s1.set_vowel(s2)
@@ -128,11 +178,10 @@ def main():
     fsa = Fsa(s1, states)
 
     #generate 10 workds 
-    words = []
-    for i in range(10): 
-      word = gen(fsa)
-      words.append(word)
-    print(words)
+    sentence = gen(fsa)
+    print(sentence)
+
+
 
 
 
