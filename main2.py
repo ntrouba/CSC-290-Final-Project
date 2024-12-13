@@ -104,7 +104,7 @@ def main():
     s3.add_transition("noun", s4)
     s4.add_transition("verb", s5)
 
-    # Generate a holiday poem
+    # Generate poem from text
     print("A Recursive Dickensian Holiday Poem:")
     for _ in range(5):
         line = generate_poem_line(s1, fsa)
