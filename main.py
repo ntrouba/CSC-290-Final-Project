@@ -14,19 +14,24 @@ class State:
         if self.accept: 
             if len(list(self.transitions.keys()))== 0:
                 stop = True 
-            else:
+            else: #
                 stop = random.randint(0,1)
             if stop: 
                 return "stop", None 
-          
+            else:
+                transition:str = random.choice(list(self.transitions.keys()))
+                #print(transition)
+                next_state:State = random.choice(self.transitions[transition])
+                return transition, next_state
+
         else:
             transition:str = random.choice(list(self.transitions.keys()))
-            print(transition)
+           # print(transition)
             next_state:State = random.choice(self.transitions[transition])
             return transition, next_state
 
     def __str__(self):
-        return str(self.accept) + str(self.transitions)
+        return str(self.accept)
     # def choose 
         # returns transition str, and next state 
 
@@ -38,13 +43,13 @@ class Fsa:
        self.start_state:State = start_state 
        self.states:list[State] = [] 
 
-       self.word_bank:dict[str, list[str] |State] = { "noun": ["reindeer", "misteltoe", "stockings", "chimney", "elf"], 
+       self.word_bank:dict[str, list[str] |State] = { 
+       "noun": ["reindeer", "misteltoe", "stockings", "chimney", "elf"], 
        "adj": ["warm", "cold", "happy", "festive", "christmassy"], 
-       "articles" : ["a", "the"], 
+       "article" : ["a", "the"], 
        "prep": ["above", "with", "on", "between", "at"], 
        "det" : ["can", "might", "will"],
-       # epsiolon jump 
-       "e" : [""],
+       "e" : [""], # epsiolon jump 
        "aux" : ["can", "may", "might", "will", "would"],
        "wp": ["who", "which", "that", "whose"],
        "punc" : [".", "!", "?"],
@@ -78,53 +83,44 @@ class Fsa:
 
 def gen(fsa:Fsa, fsa_dict:dict[str, Fsa])-> str:
     
-    sentence:str= ""
+    poem:str= ""
     stop = False
     
     current_state:State|None = fsa.start_state 
 
     while not stop:
        # print("current state:", current_state)
-
         if current_state == None: 
             stop = True 
-        
         else:
-
             ret = current_state.choose()
-            #print(ret)
-            #print("type of ret: ", type(ret))
+            print(ret)
+            print("type of ret: ", type(ret))
             transition:str = ret[0]
+            
             if transition == "stop":
                 stop = True
                 #print("break")
                 break
-
             next_state:State|None = ret[1]
 
            # print("transition: ", transition, "next state:" , next_state)
-
             # if transition is terminal, add word from list 
+         
 
-            # if transition is an fsa (nonterminal)
-                #sentence += gen(transition)
             if fsa_dict.get(transition) != None: 
                 print("reciursive call to:", transition)
-                sentence += gen(fsa_dict[transition], fsa_dict)
+                poem += gen(fsa_dict[transition], fsa_dict)
             elif fsa.word_bank.get(transition) != None:
                 word:str = random.choice(list(fsa.word_bank.get(transition)))
                # print("word:", word)
-                sentence += word
+                poem += word
             else: 
                 print("error, bad transition")
-            
-            sentence+= ' '
-
+            poem+= ' '
             current_state:State = next_state 
 
-    
-
-    return sentence 
+    return poem 
 
 
 def generate_np_automata()->Fsa: 
@@ -160,15 +156,38 @@ def generate_sentence_automata()-> Fsa:
     return s 
 
 
+def generate_line_automata()-> Fsa:
+    s1 = State(False)
+    s2 = State(False)
+    s3 = State(False)
+    s4 = State(True)
+
+    states = [s1, s2, s3, s4]
+
+    s1.transitions = {"article": [s2]}
+    s2.transitions = {"adj" : [s3]}
+    s3.transitions = {"adj" : [s3], "noun" : [s4]}
+    s4.transitions = {"prep": [s1, s2], "verb" : [s1, s2]}
+
+    fsa =  Fsa(s1, states)
+
+    return fsa
+
+
 
 
 def main():
+    fsa_dict:dict[str, Fsa] = {"np": generate_np_automata(), "s": generate_sentence_automata(), "line" : generate_line_automata()}
 
-    fsa_dict:dict[str, Fsa] = {"np": generate_np_automata(), "s": generate_sentence_automata()}
+    l = gen(fsa_dict.get("line"), fsa_dict)
+    print(l)
+
 
     #generate 10 workds 
-    sentence = gen(fsa_dict["s"], fsa_dict)
-    print(sentence)
+   # sentence = gen(fsa_dict["s"], fsa_dict)
+   # print(sentence)
+  
+   
 
 
 ##TODO fix spacing w/ episolon jumps 
