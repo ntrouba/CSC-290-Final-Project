@@ -1,5 +1,4 @@
-import random  
-from typing import Self 
+import random 
 
 
 class State:
@@ -7,22 +6,26 @@ class State:
         self.accept:bool = accept
         self.transitions:dict[str, list[State]] | None = None 
 
-    def choose(self) -> tuple[str, Self|None]:   
-        # if self.accept and there are no transitions, have to accept. otherwise, choose randomly
+    def choose(self):   #-> tuple[str, self|None]
+
+        # if self.accept and there are no transitions, have to accept.
+        #  otherwise, choose randomly
         #whether or not to be done generating 
+        stop:bool = False 
         if self.accept: 
             if len(list(self.transitions.keys()))== 0:
                 stop = True 
             else: #
                 stop = random.randint(0,1)
-            if stop: 
-                return "stop", None 
+        if stop == True: 
+            return "stop", None 
+        else:
         
-        # if not stopping, pick random transition and random destination from that transition 
-        transition:str = random.choice(list(self.transitions.keys()))
-        # print(transition)
-        next_state:State = random.choice(self.transitions[transition])
-        return transition, next_state
+            # if not stopping, pick random transition and random destination from that transition 
+            transition:str = random.choice(list(self.transitions.keys()))
+            # print(transition)
+            next_state:State = random.choice(self.transitions[transition])
+            return transition, next_state
 
     def __str__(self):
         return str(self.accept)
@@ -34,8 +37,14 @@ class Fsa:
        self.states:list[State] = [] 
 
        self.word_bank:dict[str, list[str] |State] = { 
-       "noun": ["girl", "boy", "santa", "reindeer", "misteltoe", "stockings", "chimney", "elf"], 
-       "adj": ["warm", "cold", "happy", "festive", "christmassy"], 
+       "noun": ["girl", "boy", "santa", "reindeer", "misteltoe", "stockings", "chimney", "elf", "ornament", "garland", "mistletoe", "tinsel", "candlelight", "stocking",
+        "snowflake", "icicle", "reindeer", "sleigh", "holly", "fireplace",
+        "evergreen", "caroling", "noel", "celebration", "wreath", "chimney",
+        "north pole", "yule", "cranberry", "sugarplum", "blizzard", "cocoa",
+        "tradition", "nutcracker", "feast", "hearth", "scarf"], 
+       "adj": ["warm", "cold", "happy", "festive", "christmassy", "jingle", "wrapping", "giving", "twinkle", "glisten", "sparkle", "gather", 
+       "cozy", "frosty", "festive", "joyful", "cheerful", "starry",
+        "warmth", "merriment", "peaceful", "wonderous", "glow"], 
        "article" : ["a", "the"], 
        "prep": ["above", "with", "on", "between", "at"], 
        "det" : ["can", "might", "will"],
@@ -51,7 +60,7 @@ class Fsa:
 
 def gen(fsa:Fsa, fsa_dict:dict[str, Fsa])-> str:
 
-    print("gen", fsa)
+    #("gen", fsa)
     
     poem:str= ""
     stop = False
@@ -79,15 +88,16 @@ def gen(fsa:Fsa, fsa_dict:dict[str, Fsa])-> str:
          
 
             if fsa_dict.get(transition) != None: 
-                print("reciursive call to:", transition)
+                #print("reciursive call to:", transition)
                 poem += gen(fsa_dict[transition], fsa_dict)
             elif fsa.word_bank.get(transition) != None:
                 word:str = random.choice(list(fsa.word_bank.get(transition)))
                # print("word:", word)
-                poem += word
+                poem += word 
+                if transition != "e":
+                    poem += " "
             else: 
-                print("error, transiton is:", transition)
-            poem+= ' '
+                print("transition:", transition)
             current_state:State = next_state 
 
     return poem 
@@ -105,7 +115,7 @@ def generate_np_automata()->Fsa:
     s1.transitions = {"det": [s2]}
     s2.transitions = {"adj": [s2, s3], "e" : [s3]}
     s3.transitions = {"noun" : [s4]} 
-    s4.transitions = {"prep" :[s5], "e" : [s5]}
+    s4.transitions = {"prep" : [s5], "e" : [s5]}
     s5.transitions = {"whnp" : [s6], "e" : [s6]}
     s6.transitions = {}
 
@@ -121,15 +131,15 @@ def generate_whnp_autamata() -> Fsa:
     s2 = State(False)
     s3 = State(False)
     s4 = State(False)
-    s5 = State(True)
-    s6 = State(True)
-    s7 = State(False)
+    s5 = State(False)
+    s6 = State(False)
+    s7 = State(True)
 
     s1.transitions = {"comma": [s2]}
     s2.transitions = {"wp": [s3]}
     s3.transitions = {"noun": [s4], "e" : [s4]}
     s4.transitions = {"aux" : [s5]}
-    s5.transitions = {"verb_phrase": [s6]}
+    s5.transitions = {"vp": [s6]}
     s6.transitions = {"comma" : [s7]}
     s7.transitions = {}
 
@@ -140,8 +150,6 @@ def generate_whnp_autamata() -> Fsa:
 
     return whnp
 
-
-#TODO make verb_phrase automaata 
 
 def generate_verb_phrase_automata()-> Fsa: 
     s1 = State(False)
@@ -169,10 +177,6 @@ def generate_verb_phrase_automata()-> Fsa:
     verb_phrase_fsa = Fsa(s1, verb_phrase_states)
     return verb_phrase_fsa
 
-
-
-
-    
 
 
 def generate_sentence_automata()-> Fsa: 
@@ -224,25 +228,17 @@ def generate_line_automata()-> Fsa:
     return fsa
 
 
-
-
 def main():
+
+
     fsa_dict:dict[str, Fsa] = {"np": generate_np_automata(), "s": generate_sentence_automata(), "line" : generate_line_automata(), "vp" : generate_verb_phrase_automata(), "whnp" : generate_whnp_autamata()}
 
-    #l = gen(fsa_dict.get("line"), fsa_dict)
-     # print(l)
-    s = gen(fsa_dict.get("s"), fsa_dict) 
-    print(s)
-
-
-    #generate 10 workds 
-   # sentence = gen(fsa_dict["s"], fsa_dict)
-   # print(sentence)
   
-   
-
-
-##TODO fix spacing w/ episolon jumps 
+    print("***Here is your holiday poem***")
+    for _ in range(5):
+        sentence = gen(fsa_dict["s"], fsa_dict)
+        print(sentence)
+    print("*********")
 
 
 
