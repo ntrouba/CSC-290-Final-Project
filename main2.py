@@ -46,11 +46,9 @@ class State:
 
 
 def generate_poem_line(state, fsa, sentence=[]):
-    # Base case: If the state is accepting, return the sentence
     if state.is_accept():
         return ' '.join(sentence).capitalize()
 
-    # Randomly select the next transition
     possible_transitions = list(state.transitions.keys())
     if not possible_transitions:
         raise ValueError(f"No transitions available from state: {state.name}")
@@ -75,7 +73,6 @@ def generate_poem_line(state, fsa, sentence=[]):
 
 
 def main():
-    # Parse text from A Christmas Carol
     nouns, verbs, adjectives = parse_text("christmas_carol.txt")
 
 
