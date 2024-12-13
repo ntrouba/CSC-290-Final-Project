@@ -44,7 +44,12 @@ class Fsa:
        "prep": ["above", "with", "on", "between", "at"], 
        "det" : ["can", "might", "will"],
        # epsiolon jump 
-       "e" : [""]
+       "e" : [""],
+       "aux" : ["can", "may", "might", "will", "would"],
+       "wp": ["who", "which", "that", "whose"],
+       "punc" : [".", "!", "?"],
+       "comma" : [","]
+
        }
 
        # transitions dictionary 
@@ -79,7 +84,7 @@ def gen(fsa:Fsa, fsa_dict:dict[str, Fsa])-> str:
     current_state:State|None = fsa.start_state 
 
     while not stop:
-        print("current state:", current_state)
+       # print("current state:", current_state)
 
         if current_state == None: 
             stop = True 
@@ -108,72 +113,21 @@ def gen(fsa:Fsa, fsa_dict:dict[str, Fsa])-> str:
                 sentence += gen(fsa_dict[transition], fsa_dict)
             elif fsa.word_bank.get(transition) != None:
                 word:str = random.choice(list(fsa.word_bank.get(transition)))
-                print("word:", word)
+               # print("word:", word)
                 sentence += word
             else: 
                 print("error, bad transition")
             
-            sentence += ' '
+            sentence+= ' '
 
             current_state:State = next_state 
 
-
-
-    #temp for testing 
-        
-
-        # ret = state.choose  
-        # transition = ret[0]
-        # next_state = ret[1]
-
-
-            #if transition = accept, stop  = True 
-
-            # if transition terminal, 
-            # words = fsa.transition 
-                 # add random word to sentence 
-
-            # if choice not terminal 
-                # gen(transition) 
-
-            #current_state = next_state 
-
-
-
-
-
-
-
-        
-
-
-
-
-        #print(str(current_state.get_consonant()))
-        #print(str(current_state.get_vowel()))
-
-        #look at state and add possible options to choices array 
-
-        # make choice 
-
-        
-
-
-        # if nonterminal 
     
 
-    return sentence
+    return sentence 
 
 
-def main():
-
-    # create automata called fsa 
-
-    #initalize states
-    s1:State
-    s2:State
-    s3:State
-    s4:State
+def generate_np_automata()->Fsa: 
 
     s1 = State(False)
     s2 = State(False)
@@ -190,6 +144,10 @@ def main():
     #create fsa 
     np:Fsa = Fsa(s1, np_states)
 
+    return np
+
+def generate_sentence_automata()-> Fsa: 
+   
     s5 = State(False)
     s6 = State(True)
 
@@ -199,16 +157,21 @@ def main():
     s6.transitions = {}
 
     s:Fsa = Fsa(s5, s_states)
-
-    fsa_dict:dict[str, Fsa] = {"np": np, "s": s}
-
+    return s 
 
 
+
+
+def main():
+
+    fsa_dict:dict[str, Fsa] = {"np": generate_np_automata(), "s": generate_sentence_automata()}
 
     #generate 10 workds 
-    sentence = gen(s, fsa_dict)
+    sentence = gen(fsa_dict["s"], fsa_dict)
     print(sentence)
 
+
+##TODO fix spacing w/ episolon jumps 
 
 
 
