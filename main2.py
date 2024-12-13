@@ -5,7 +5,7 @@ from nltk import pos_tag
 import random
 
 # Download NLTK resources (only needed the first time)
-nltk.download('punkt_tab', force=True)
+nltk.download('punkt_tab')
 nltk.download('averaged_perceptron_tagger_eng')
 nltk.download('stopwords')
 
