@@ -1,3 +1,4 @@
+from fileinput import filename
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -5,9 +6,9 @@ from nltk import pos_tag
 import random
 
 # Download NLTK resources (only needed the first time)
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
-nltk.download('stopwords')
+#nltk.download('punkt_tab')
+#nltk.download('averaged_perceptron_tagger_eng')
+#nltk.download('stopwords')
 
 class State:
     def __init__(self, accept:bool):
@@ -266,7 +267,7 @@ def main():
    # nouns, verbs, adjectives = fake_ntlk()
     
 
-    nouns, verbs, adjectives = parse_text()
+    nouns, verbs, adjectives = parse_text("christmas_carol.txt")
     
     word_bank:dict[str, list[str]] = {  
         "noun" : nouns,
